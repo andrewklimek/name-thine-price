@@ -22,9 +22,12 @@ You should have received a copy of the GNU General Public License along with
 Name Thine Price. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
 */
 
-add_filter( 'woocommerce_add_cart_item', __NAMESPACE__ .'/add_cart_item' );
-add_filter( 'woocommerce_get_cart_item_from_session', __NAMESPACE__ .'/get_cart_item_from_session' );
-add_action( 'woocommerce_before_add_to_cart_button', __NAMESPACE__ .'/add_price_field' );
+// This removes quantity fields and makes so you can't add to cart twice.  Temp solution.
+// add_filter( 'woocommerce_is_sold_individually', '__return_true' );
+
+add_filter( 'woocommerce_add_cart_item', __NAMESPACE__ .'\add_cart_item' );
+add_filter( 'woocommerce_get_cart_item_from_session', __NAMESPACE__ .'\get_cart_item_from_session' );
+add_action( 'woocommerce_before_add_to_cart_button', __NAMESPACE__ .'\add_price_field' );
 
 function add_price_field() {
 	print "<input type='number' min='0' step='0.01' name='name-thine-price' class='name-thine-price'>";
