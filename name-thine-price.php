@@ -6,7 +6,7 @@ Plugin URI:  https://github.com/andrewklimek/name-thine-price
 Description: Name Your Price / Donate plugin for WooCommerce
 Version:     0.2.0
 Author:      Andrew J Klimek
-Author URI:  https://readycat.net
+Author URI:  https://github.com/andrewklimek
 License:     GPL2
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
