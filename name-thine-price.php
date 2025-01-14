@@ -37,12 +37,12 @@ add_filter( 'woocommerce_add_cart_item', __NAMESPACE__ .'\add_cart_item' );
 add_filter( 'woocommerce_get_cart_item_from_session', __NAMESPACE__ .'\get_cart_item_from_session' );
 add_action( 'woocommerce_before_add_to_cart_button', __NAMESPACE__ .'\add_price_field' );
 
-add_filter( 'woocommerce_price_html',  __NAMESPACE__ .'\or_more', 10, 2 );
-add_filter( 'woocommerce_free_price_html',  __NAMESPACE__ .'\free', 10, 2 );
-add_filter( 'woocommerce_empty_price_html',  __NAMESPACE__ .'\free', 10, 2 );
+// maybe use woocommerce_get_price_suffix instead https://woocommerce.github.io/code-reference/files/woocommerce-includes-abstracts-abstract-wc-product.html#source-view.2046
+add_filter( 'woocommerce_get_price_html',  __NAMESPACE__ .'\price_html', 10, 2 );
 
-function or_more( $html, $this ) { return $html . "+"; }
-function free( $html, $this ) { return ""; }
+function price_html( $html, $product ) {
+	return $html ? $html . "+" : "";
+}
 
 add_filter( 'woocommerce_is_purchasable',  __NAMESPACE__ .'\is_purchasable', 10, 2 );
 function is_purchasable( $purchasable, $product ) {
@@ -53,32 +53,33 @@ function is_purchasable( $purchasable, $product ) {
 function add_price_field() {
 	
 	global $product;
-	$id = esc_attr( $product->id );// product ID to make field ID unique
-	$min = esc_attr( $product->get_display_price() );// regular price to act as minimum in HTML5 validation
+	$id = esc_attr( $product->get_id() );// product ID to make field ID unique
+	$min = esc_attr( $product->get_price() );// regular price to act as minimum in HTML5 validation
 	
-	print "<label for='name-thine-price-{$id}'>Name your price: </label> <input id='name-thine-price-{$id}' name='name-thine-price' type='number' min='{$min}' step='0.01' required>";
+	echo "<label for='name_thine_price-{$id}'>Name your price: </label> <input id='name_thine_price-{$id}' name='name_thine_price' type='number' min='{$min}' step='0.5' required>";
 }
 
 function get_cart_item_from_session( $cart_item ) {
 	
 	if ( ! empty( $cart_item['name_thine_price'] ) ) {
-		
-	$cart_item['data']->set_price( $cart_item['name_thine_price'] );
+		$cart_item['data']->set_price( $cart_item['name_thine_price'] );
 	}
 	return $cart_item;
 }
 
 function add_cart_item( $cart_item ) {
+
+	// $cart_item['data'] is a product object.
 	
-	if ( ! empty ( $_REQUEST['name-thine-price'] ) ) {
+	if ( ! empty ( $_REQUEST['name_thine_price'] ) ) {
 		
-		if ( $_REQUEST['name-thine-price'] < $cart_item['data']->price ) {
+		if ( $_REQUEST['name_thine_price'] < $cart_item['data']->get_price() ) {
 			// TODO this could be checked on the actual validation hook but it seemed tricky dealing with variations and ajax
-			throw new \Exception( "Please set a price of {$cart_item['data']->price} or more." );
+			throw new \Exception( "Please set a price of " . $cart_item['data']->get_price(). " or more." );
 			
 		} else {
 		
-			$cart_item['name_thine_price'] = $_REQUEST['name-thine-price'];
+			$cart_item['name_thine_price'] = $_REQUEST['name_thine_price'];
 		
 			$cart_item['data']->set_price( $cart_item['name_thine_price'] );
 		}
@@ -91,4 +92,26 @@ function validate( $pass, $product_id, $quantity, $variation_id ) {
 	$product_data = wc_get_product( (int) $variation_id );
 	poo($product_data);
 	return $pass;
+}
+
+
+function make_popup( $a='', $c='', $shortcode=false ) {
+
+	if ( $shortcode ) ob_start();
+
+	// print the wrapped button but remove class that serves as ajax trigger
+	echo str_replace( 'ajax_add_to_cart', 'open-ntp-popup', $c );
+?>
+<script>
+jQuery(document.body).on('should_send_ajax_request.adding_to_cart', function(e, button ) {
+	console.log(button);
+	var nypForm = button.closest('.nyp-product').wc_nyp_get_script_object();
+	if ( nypForm && ! nypForm.isValid() ) {
+		return false
+	}
+	return true;
+});
+</script>
+<?php
+	if ( $shortcode ) return ob_get_clean();
 }
