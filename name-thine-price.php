@@ -45,12 +45,12 @@ function is_purchasable( $purchasable, $product ) {
 function add_price_field() {
 	
 	global $product;
-	$id = esc_attr( $product->get_id() );// product ID to make field ID unique
+	$id = $product->get_id();// product ID to make field ID unique
+	$price = $product->get_price();
 	$min = get_option( 'namethineprice_minimum' );
-	$min = is_numeric( $min ) ? $min : $product->get_price();// regular price to act as minimum in HTML5 validation
-	$min = esc_attr( $min );
+	$min = is_numeric( $min ) ? $min : $price;// regular price to act as minimum in HTML5 validation
 	
-	echo "<label for='name_thine_price-{$id}'>Name your price: </label> <input id='name_thine_price-{$id}' name='name_thine_price' type='number' min='{$min}' step='0.5' required>";
+	echo "<label for='name_thine_price-{$id}'>Name your price: </label> <input id='name_thine_price-{$id}' name='name_thine_price' type='number' min='{$min}' step='0.5' value='{$price}' required>";
 }
 
 function get_cart_item_from_session( $cart_item ) {
