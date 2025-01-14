@@ -115,3 +115,41 @@ jQuery(document.body).on('should_send_ajax_request.adding_to_cart', function(e, 
 <?php
 	if ( $shortcode ) return ob_get_clean();
 }
+
+
+/************************
+* Settings Page
+**/
+
+add_action( 'rest_api_init', __NAMESPACE__.'\register_options_endpoint' );
+function register_options_endpoint() {
+	register_rest_route( __NAMESPACE__.'/v1', '/settings', ['methods' => 'POST', 'callback' => __NAMESPACE__.'\api_options', 'permission_callback' => function(){ return current_user_can('manage_options');} ] );
+}
+
+function api_options( $request ) {
+	foreach ( $request->get_body_params() as $k => $v ) update_option( $k, $v );
+	return "Saved";
+}
+
+add_action( 'admin_menu', __NAMESPACE__.'\admin_menu' );
+function admin_menu() {
+	add_submenu_page( 'options-general.php', 'Name Thine Price', 'Name Thine Price', 'manage_options', 'name-thine-price', __NAMESPACE__.'\settings_page' );
+}
+
+function settings_page() {
+
+	$options = [
+		'minimum' => [
+			'type' => 'number',
+			'desc' => 'leave blank to use regular price as minimum',
+		],
+	];
+
+	/**
+	 *  Build Settings Page using framework in settings_page.php
+	 **/
+	$prefix = 'namethineprice_';
+	$endpoint = rest_url(__NAMESPACE__.'/v1/settings');
+	$title = "Name Thine Price";
+	require( __DIR__.'/settings-page.php' );// needs $options, $endpoint, $title
+}
