@@ -4,7 +4,7 @@ namespace name_thine_price;
 Plugin Name: Name Thine Price
 Plugin URI:  https://github.com/andrewklimek/name-thine-price
 Description: Name Your Price / Donate plugin for WooCommerce
-Version:     0.2.0
+Version:     0.3.0
 Author:      Andrew J Klimek
 Author URI:  https://github.com/andrewklimek
 
