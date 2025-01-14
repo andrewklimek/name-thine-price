@@ -54,7 +54,10 @@ function add_price_field() {
 	
 	global $product;
 	$id = esc_attr( $product->get_id() );// product ID to make field ID unique
-	$min = esc_attr( $product->get_price() );// regular price to act as minimum in HTML5 validation
+	$min = get_option( 'namethineprice_minimum' );
+	echo "test" . $min;
+	$min = is_numeric( $min ) ? $min : $product->get_price();// regular price to act as minimum in HTML5 validation
+	$min = esc_attr( $min );
 	
 	echo "<label for='name_thine_price-{$id}'>Name your price: </label> <input id='name_thine_price-{$id}' name='name_thine_price' type='number' min='{$min}' step='0.5' required>";
 }
@@ -72,10 +75,13 @@ function add_cart_item( $cart_item ) {
 	// $cart_item['data'] is a product object.
 	
 	if ( ! empty ( $_REQUEST['name_thine_price'] ) ) {
+
+		$min = get_option( 'namethineprice_minimum' );
+		$min = is_numeric( $min ) ? $min : $cart_item['data']->get_price();
 		
-		if ( $_REQUEST['name_thine_price'] < $cart_item['data']->get_price() ) {
+		if ( $_REQUEST['name_thine_price'] < $min ) {
 			// TODO this could be checked on the actual validation hook but it seemed tricky dealing with variations and ajax
-			throw new \Exception( "Please set a price of " . $cart_item['data']->get_price(). " or more." );
+			throw new \Exception( "Please set a price of {$min} or more." );
 			
 		} else {
 		
