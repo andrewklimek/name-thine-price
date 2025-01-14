@@ -25,14 +25,6 @@ TODO currently this plugin adds Name Your Price to every product.  Make a way to
 */
 
 
-// This removes quantity fields and makes so you can't add to cart twice.  Temp solution.
-add_filter( 'woocommerce_is_sold_individually', '__return_true' );
-// also temporary.  Remove cart buttons from loops
-add_action( 'wp_head',  __NAMESPACE__ .'\remove_actions' );
-function remove_actions() {
-	remove_action( 'woocommerce_after_shop_loop_item', 'woocommerce_template_loop_add_to_cart', 10 );
-}
-
 add_filter( 'woocommerce_add_cart_item', __NAMESPACE__ .'\add_cart_item' );
 add_filter( 'woocommerce_get_cart_item_from_session', __NAMESPACE__ .'\get_cart_item_from_session' );
 add_action( 'woocommerce_before_add_to_cart_button', __NAMESPACE__ .'\add_price_field' );
@@ -55,7 +47,6 @@ function add_price_field() {
 	global $product;
 	$id = esc_attr( $product->get_id() );// product ID to make field ID unique
 	$min = get_option( 'namethineprice_minimum' );
-	echo "test" . $min;
 	$min = is_numeric( $min ) ? $min : $product->get_price();// regular price to act as minimum in HTML5 validation
 	$min = esc_attr( $min );
 	
